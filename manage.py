@@ -3,6 +3,9 @@
 import os
 import sys
 
+# after execute migration from user, next command is: pip3 install djangorestframework
+# start server: python3 manage.py runserver
+
 
 def main():
     """Run administrative tasks."""

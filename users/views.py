@@ -7,11 +7,11 @@ from rest_framework import status
 from .models import User
 from users.serializers import UserSerializer
 
-# create a custom python environment -> venv
-# display IP: ipconfig getifaddr <en0, en1>
 # create a virtual environment: python3.11 -m venv <venv>
 # active venv: source <venv>/bin/activate
 # exit: (venv...) deactivate
+# pip freeze > requirements.txt
+# (another venv) pip install -r requirements.txt
 
 # (venv) pip list
 # django, djangorestframework, pymysql

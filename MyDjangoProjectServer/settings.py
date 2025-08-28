@@ -11,10 +11,22 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import environ
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Initialise environment variables
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
+# Take the .env file from the root directory
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+
+# Debug config
+DEBUG = env("DEBUG")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -26,6 +38,7 @@ SECRET_KEY = 'django-insecure-py!a@+b&q!u_#j@@ylqkys=q0%301q_ejvtpsa+f705cs$4_p@
 DEBUG = True
 
 # LAN
+# display IP: ipconfig getifaddr <en0, en1>
 # python manage.py runserver <ipv4>:<3000> 
 ALLOWED_HOSTS = ["192.168.100.238"]
 
@@ -79,11 +92,11 @@ WSGI_APPLICATION = 'MyDjangoProjectServer.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'database_name',
-        'USER': 'root',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'NAME': env("DB_NAME"),
+        'USER': env("DB_USER"),
+        'PASSWORD': env("DB_PASSWORD"),
+        'HOST': env("DB_HOST"),
+        'PORT': env("DB_PORT"),
     }
 }
 

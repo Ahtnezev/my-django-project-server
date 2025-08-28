@@ -1,5 +1,6 @@
 # Python compiled files
 __pycache__/
+venv/
 *.pyc
 *.pyo
 *.pyd

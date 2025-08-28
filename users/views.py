@@ -3,6 +3,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 from users.serializers import UserSerializer
@@ -40,14 +41,19 @@ def login(request):
         return Response({"error": "Email o password no son correctos"}, status=status.HTTP_401_UNAUTHORIZED)
         
     if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+        refresh_token = RefreshToken.for_user(user)
+        access_token = str(refresh_token.access_token)
         user_data = {
-            "id": user.id,
-            "name": user.name,
-            "lastname": user.lastname,
-            "email": user.email,
-            "phone": user.phone,
-            "image": user.image,
-            "notification_token": user.notification_token
+            "user": {
+                "id": user.id,
+                "name": user.name,
+                "lastname": user.lastname,
+                "email": user.email,
+                "phone": user.phone,
+                "image": user.image,
+                "notification_token": user.notification_token,
+            },
+            "token": "Bearer " + access_token
         }
         return Response(user_data, status=status.HTTP_200_OK)
     else:

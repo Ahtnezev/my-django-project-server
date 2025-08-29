@@ -21,6 +21,8 @@ from users.serializers import UserSerializer
 # create a new module with: python manage.py startapp <app_name> -> authentication
 # auth no 'cause it's exists
 
+# create new module: ... startapp roles
+
 # Create your views here.
 # GET, POST, PUT, DELETE
 

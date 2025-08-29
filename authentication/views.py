@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 
 import bcrypt
 from rest_framework.response import Response
@@ -6,7 +6,9 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from users.models import User
+from roles.models import Role
+from roles.serializers import RoleSerializer
+from users.models import User, UserHasRoles
 from users.serializers import UserSerializer
 
 # create a virtual environment: python3.11 -m venv <venv>
@@ -25,13 +27,23 @@ from users.serializers import UserSerializer
 
 # Create your views here.
 # GET, POST, PUT, DELETE
-
+# 4	Yunnuee	Martinez	yun@mart.com	3331487432
 @api_view(['POST'])
 def register(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid(): # Validate the data
-        serializer.save() # Save in database
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        user = serializer.save()
+
+        client_role = get_object_or_404(Role, id="CLIENT")
+        UserHasRoles.objects.create(id_user=user, id_rol=client_role)
+        roles = Role.objects.filter(userhasroles__id_user=user)
+        roles_serializer = RoleSerializer(roles, many=True) # many to indicate that is a list
+        response_data = {
+            **serializer.data,
+            "roles": roles_serializer.data
+        }
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])

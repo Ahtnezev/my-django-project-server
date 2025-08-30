@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import update
+from .views import update, updateWithImage
 
 urlpatterns = [
     path('/<id_user>', update),
-    # path('/login', login)
+    path('/upload/<id_user>', updateWithImage)
 ]

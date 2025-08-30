@@ -11,6 +11,7 @@ from roles.serializers import RoleSerializer
 from users.models import User, UserHasRoles
 from users.serializers import UserSerializer
 from rest_framework.permissions import AllowAny
+from django.conf import settings
 
 # create a virtual environment: python3.11 -m venv <venv>
 # active venv: source <venv>/bin/activate
@@ -104,7 +105,7 @@ def login(request):
                 "lastname": user.lastname,
                 "email": user.email,
                 "phone": user.phone,
-                "image": user.image,
+                "image": f'http://{settings.GLOBAL_IP}:{settings.GLOBAL_HOST}{user.image}' if user.image else None,
                 "notification_token": user.notification_token,
                 "roles": roles_serializer.data,
             },

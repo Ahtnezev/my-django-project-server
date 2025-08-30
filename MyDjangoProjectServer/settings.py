@@ -41,7 +41,9 @@ DEBUG = True
 # LAN
 # display IP: ipconfig getifaddr <en0, en1>
 # python manage.py runserver <ipv4>:<3000> 
-ALLOWED_HOSTS = ["192.168.100.238"]
+GLOBAL_IP = "192.168.100.238"
+GLOBAL_HOST = "3000"
+ALLOWED_HOSTS = [GLOBAL_IP]
 
 
 # Application definition
@@ -126,6 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # >.< JWT
 # "rest_framework_simplejwt.authentication.JWTAuthentication",
+#! important: put the commas!! haha
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "authentication.customJWTAuthentication.CustomJWTAuthentication",
@@ -137,7 +140,7 @@ REST_FRAMEWORK = {
 
 # important finish with a comma, ("Bearer",),
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=3),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,

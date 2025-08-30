@@ -78,6 +78,8 @@ def login(request):
     if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         refresh_token = RefreshToken.for_user(user)
         access_token = str(refresh_token.access_token)
+        roles = Role.objects.filter(userhasroles__id_user=user)
+        roles_serializer = RoleSerializer(roles, many=True)
         user_data = {
             "user": {
                 "id": user.id,
@@ -87,6 +89,7 @@ def login(request):
                 "phone": user.phone,
                 "image": user.image,
                 "notification_token": user.notification_token,
+                "roles": roles_serializer.data,
             },
             "token": "Bearer " + access_token
         }

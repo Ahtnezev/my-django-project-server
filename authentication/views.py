@@ -44,7 +44,18 @@ def register(request):
         }
 
         return Response(response_data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    error_messages = []
+    for field, errors in serializer.errors.items():
+        for error in errors:
+            error_messages.append(f"{field}: {error}")
+    
+    # dict, format to error response in postman
+    error_response = {
+        "message": error_messages,
+        "statusCode": status.HTTP_400_BAD_REQUEST
+    }
+
+    return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def login(request):
@@ -52,11 +63,17 @@ def login(request):
     password = request.data.get('password')
 
     if not email or not password:
-        return Response({"error": "El email y password son obligatorios"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"message": "El email y password son obligatorios", "statusCode" : status.HTTP_400_BAD_REQUEST},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     try:
         user = User.objects.get(email=email)
     except User.DoesNotExist:
-        return Response({"error": "Email o password no son correctos"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {"message": "El email o password no son correctos", "statusCode" : status.HTTP_401_UNAUTHORIZED},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
         
     if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         refresh_token = RefreshToken.for_user(user)
@@ -75,4 +92,7 @@ def login(request):
         }
         return Response(user_data, status=status.HTTP_200_OK)
     else:
-        return Response({"error": "Email o password no son correctos"}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {"message": "El email o password no son correctos", "statusCode" : status.HTTP_401_UNAUTHORIZED},
+            status=status.HTTP_401_UNAUTHORIZED
+        )

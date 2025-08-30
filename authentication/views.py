@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render
 
 import bcrypt
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -10,6 +10,7 @@ from roles.models import Role
 from roles.serializers import RoleSerializer
 from users.models import User, UserHasRoles
 from users.serializers import UserSerializer
+from rest_framework.permissions import AllowAny
 
 # create a virtual environment: python3.11 -m venv <venv>
 # active venv: source <venv>/bin/activate
@@ -29,6 +30,7 @@ from users.serializers import UserSerializer
 # GET, POST, PUT, DELETE
 # 4	Yunnuee	Martinez	yun@mart.com	3331487432
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid(): # Validate the data
@@ -57,14 +59,29 @@ def register(request):
 
     return Response(error_response, status=status.HTTP_400_BAD_REQUEST)
 
+
+
+# this info comes after paste our jwt in jwt.io and get the user_id field. The
+# database doesnt recognize the user_id field, so we need to add it manually and replace by id field
+def getCustomTokenForUser(user):
+    refresh_token = RefreshToken.for_user(user)
+    del refresh_token.payload['user_id']
+    refresh_token.payload['id'] = user.id
+    refresh_token.payload['name'] = user.name
+    return refresh_token
+
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login(request):
     email = request.data.get('email')
     password = request.data.get('password')
 
     if not email or not password:
         return Response(
-            {"message": "El email y password son obligatorios", "statusCode" : status.HTTP_400_BAD_REQUEST},
+            {
+                "message": "El email y password son obligatorios",
+                "statusCode": status.HTTP_400_BAD_REQUEST
+            },
             status=status.HTTP_400_BAD_REQUEST
         )
     try:
@@ -76,7 +93,7 @@ def login(request):
         )
         
     if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-        refresh_token = RefreshToken.for_user(user)
+        refresh_token = getCustomTokenForUser(user)
         access_token = str(refresh_token.access_token)
         roles = Role.objects.filter(userhasroles__id_user=user)
         roles_serializer = RoleSerializer(roles, many=True)

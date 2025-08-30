@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from roles.models import Role
@@ -9,6 +10,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated]) # we need the authorization token
 def update(request, id_user):
     try:
         user = User.objects.get(id=id_user)
@@ -59,6 +61,7 @@ def update(request, id_user):
 
 
 @api_view(['PUT'])
+@permission_classes([IsAuthenticated])
 def updateWithImage(request, id_user):
     try:
         user = User.objects.get(id=id_user)

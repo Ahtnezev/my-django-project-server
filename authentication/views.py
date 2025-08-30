@@ -37,13 +37,18 @@ def register(request):
     if serializer.is_valid(): # Validate the data
         user = serializer.save()
 
+        refresh_token = getCustomTokenForUser(user)
+        access_token = str(refresh_token.access_token)
         client_role = get_object_or_404(Role, id="CLIENT")
         UserHasRoles.objects.create(id_user=user, id_rol=client_role)
         roles = Role.objects.filter(userhasroles__id_user=user)
         roles_serializer = RoleSerializer(roles, many=True) # many to indicate that is a list
         response_data = {
-            **serializer.data,
-            "roles": roles_serializer.data
+            "user" : {
+                **serializer.data,
+                "roles": roles_serializer.data
+            },
+            "token": "Bearer " + access_token
         }
 
         return Response(response_data, status=status.HTTP_201_CREATED)
@@ -70,6 +75,8 @@ def getCustomTokenForUser(user):
     refresh_token.payload['id'] = user.id
     refresh_token.payload['name'] = user.name
     return refresh_token
+
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
